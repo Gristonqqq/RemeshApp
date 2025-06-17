@@ -1,0 +1,65 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|solutionrelative:RemeshApp\\RemeshApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 879,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3fd5e0cc-709a-4f8c-94c3-7f0f8dff5bb2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 195,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        },
+        {
+          "DockedHeight": 13,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "RemeshApp.cpp",
+              "DocumentMoniker": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp",
+              "RelativeDocumentMoniker": "RemeshApp\\RemeshApp.cpp",
+              "ToolTip": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp",
+              "RelativeToolTip": "RemeshApp\\RemeshApp.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-06-17T12:43:44.968Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
