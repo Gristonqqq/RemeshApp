@@ -27,17 +27,7 @@
           ]
         },
         {
-          "DockedHeight": 195,
-          "SelectedChildIndex": -1,
-          "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
-            }
-          ]
-        },
-        {
-          "DockedHeight": 13,
+          "DockedHeight": 151,
           "SelectedChildIndex": 0,
           "Children": [
             {
@@ -48,11 +38,17 @@
               "RelativeDocumentMoniker": "RemeshApp\\RemeshApp.cpp",
               "ToolTip": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp",
               "RelativeToolTip": "RemeshApp\\RemeshApp.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-06-17T12:43:44.968Z",
               "EditorCaption": ""
-            },
+            }
+          ]
+        },
+        {
+          "DockedHeight": 21,
+          "SelectedChildIndex": -1,
+          "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
