@@ -99,8 +99,7 @@ public:
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
         openGLWidget = new OpenGLWidget(ViewPort);
         openGLWidget->setObjectName("openGLWidget");
-        openGLWidget->setStyleSheet(QString::fromUtf8("background-color: rgb(117, 117, 117);\n"
-"color: rgb(106, 106, 106);"));
+        openGLWidget->setStyleSheet(QString::fromUtf8(""));
 
         horizontalLayout_3->addWidget(openGLWidget);
 
