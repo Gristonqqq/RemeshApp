@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|solutionrelative:RemeshApp\\RemeshApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|solutionrelative:RemeshApp\\OpenGLWidget.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4B9E8B32-4806-41B5-BC45-35194764EBB4}|RemeshApp\\RemeshApp.vcxproj|solutionrelative:RemeshApp\\OpenGLWidget.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,26 +31,39 @@
           ]
         },
         {
-          "DockedHeight": 151,
+          "DockedHeight": 154,
           "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "RemeshApp.cpp",
-              "DocumentMoniker": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp",
-              "RelativeDocumentMoniker": "RemeshApp\\RemeshApp.cpp",
-              "ToolTip": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\RemeshApp.cpp",
-              "RelativeToolTip": "RemeshApp\\RemeshApp.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAVAAAAAAAAAA==",
+              "Title": "OpenGLWidget.cpp",
+              "DocumentMoniker": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.cpp",
+              "RelativeDocumentMoniker": "RemeshApp\\OpenGLWidget.cpp",
+              "ToolTip": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.cpp",
+              "RelativeToolTip": "RemeshApp\\OpenGLWidget.cpp",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAqwBwAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-06-17T12:43:44.968Z",
+              "WhenOpened": "2025-06-19T14:29:13.482Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OpenGLWidget.h",
+              "DocumentMoniker": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.h",
+              "RelativeDocumentMoniker": "RemeshApp\\OpenGLWidget.h",
+              "ToolTip": "D:\\Documents\\DiplomaProject\\RemeshApp\\RemeshApp\\RemeshApp\\OpenGLWidget.h",
+              "RelativeToolTip": "RemeshApp\\OpenGLWidget.h",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAACQAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-06-19T14:27:12.777Z",
               "EditorCaption": ""
             }
           ]
         },
         {
-          "DockedHeight": 21,
+          "DockedHeight": 19,
           "SelectedChildIndex": -1,
           "Children": [
             {

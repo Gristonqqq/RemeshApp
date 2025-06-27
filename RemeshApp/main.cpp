@@ -1,5 +1,6 @@
 #include "RemeshApp.h"
 #include <QtWidgets/QApplication>
+#include "OpenGLWidget.h"
 
 int main(int argc, char *argv[])
 {

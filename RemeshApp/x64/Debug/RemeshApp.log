@@ -1,7 +1,4 @@
 ﻿   Qt/MSBuild: 3.4.0.1
    Qt: 6.9.1
-  uic RemeshApp.ui
-  RemeshApp.cpp
-  main.cpp
-  moc_RemeshApp.cpp
+  OpenGLWidget.cpp
   RemeshApp.vcxproj -> D:\Documents\DiplomaProject\RemeshApp\RemeshApp\x64\Debug\RemeshApp.exe
