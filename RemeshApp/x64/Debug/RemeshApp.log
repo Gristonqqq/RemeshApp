@@ -1,4 +1,5 @@
 ﻿   Qt/MSBuild: 3.4.0.1
    Qt: 6.9.1
   OpenGLWidget.cpp
+D:\Documents\DiplomaProject\RemeshApp\RemeshApp\RemeshApp\OpenGLWidget.cpp(206,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   RemeshApp.vcxproj -> D:\Documents\DiplomaProject\RemeshApp\RemeshApp\x64\Debug\RemeshApp.exe

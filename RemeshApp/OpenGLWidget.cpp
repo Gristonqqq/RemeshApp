@@ -1,143 +1,208 @@
 #include "OpenGLWidget.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
-
-static const float vertices[] = {
-    // позиції           // кольори
-    -0.5f, -0.5f, -0.5f,  1.f, 0.f, 0.f,
-     0.5f, -0.5f, -0.5f,  0.f, 1.f, 0.f,
-     0.5f,  0.5f, -0.5f,  0.f, 0.f, 1.f,
-    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 0.f,
-    -0.5f, -0.5f,  0.5f,  0.f, 1.f, 1.f,
-     0.5f, -0.5f,  0.5f,  1.f, 0.f, 1.f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,
-    -0.5f,  0.5f,  0.5f,  0.f, 0.f, 0.f
+float defaultVertices[] = {
+	// positions        // colors (поки що, можна змінити на нормалі)
+	-0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
+	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,
+	 0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f
 };
 
-static const GLuint indices[] = {
-    0, 1, 2, 2, 3, 0,   // back face
-    4, 5, 6, 6, 7, 4,   // front face
-    0, 1, 5, 5, 4, 0,   // bottom
-    2, 3, 7, 7, 6, 2,   // top
-    1, 2, 6, 6, 5, 1,   // right
-    0, 3, 7, 7, 4, 0    // left
+unsigned int defaultIndices[] = {
+	0, 1, 2
 };
 
 OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {}
 
 OpenGLWidget::~OpenGLWidget() {
-    makeCurrent();
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
-    doneCurrent();
+	if (isValid()) {
+		makeCurrent();
+		if (VBO) glDeleteBuffers(1, &VBO);
+		if (EBO) glDeleteBuffers(1, &EBO);
+		if (VAO) glDeleteVertexArrays(1, &VAO);
+		doneCurrent();
+	}
 }
 
 void OpenGLWidget::initializeGL() {
-    initializeOpenGLFunctions();
-    glEnable(GL_DEPTH_TEST);
+	initializeOpenGLFunctions();
+	glEnable(GL_DEPTH_TEST);
 
-    // Шейдери
-    shaderProgram = new QOpenGLShaderProgram(this);
-    shaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
-        R"(#version 330 core
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aColor;
-        uniform mat4 proj;
-        out vec3 ourColor;
-        void main() {
-            gl_Position = proj * vec4(aPos, 1.0);
-            ourColor = aColor;
-        })");
+	// Шейдери
+	shader.addShaderFromSourceCode(QOpenGLShader::Vertex,
+		R"(#version 330 core
+			layout (location = 0) in vec3 aPos;
+			layout (location = 1) in vec3 aNormal;
 
-    shaderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
-        R"(#version 330 core
-        in vec3 ourColor;
-        out vec4 FragColor;
-        void main() {
-            FragColor = vec4(ourColor, 1.0);
-        })");
+			uniform mat4 model;
+			uniform mat4 view;
+			uniform mat4 projection;
 
-    shaderProgram->link();
+			out vec3 FragPos;
+			out vec3 Normal;
 
-    // VAO + VBO
-    GLuint EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+			void main() {
+				FragPos = vec3(model * vec4(aPos, 1.0));
+				Normal = mat3(transpose(inverse(model))) * aNormal;  // нормалі трансформуються
 
-    glBindVertexArray(VAO);
+				gl_Position = projection * view * vec4(FragPos, 1.0);
+			})");
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	shader.addShaderFromSourceCode(QOpenGLShader::Fragment,
+		R"(#version 330 core
+			in vec3 FragPos;
+			in vec3 Normal;
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+			out vec4 FragColor;
 
-    // Позиції
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // Кольори
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+			uniform vec3 lightDir = normalize(vec3(-0.5, -1.0, -0.3));
+			uniform vec3 lightColor = vec3(1.0);
+			uniform vec3 objectColor = vec3(0.7, 0.7, 0.7);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+			void main() {
+				vec3 norm = normalize(Normal);
+				float diff = max(dot(norm, -lightDir), 0.0);  // напрямок світла
+
+				vec3 diffuse = diff * lightColor;
+				vec3 result = diffuse * objectColor;
+
+				FragColor = vec4(result, 1.0);
+			})");
+
+	if (!shader.link()) {
+		qWarning() << "Shader link error:" << shader.log();
+	}
+
+	emit glInitialized(); // важливо для завантаження моделі
 }
+
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
-    projection.setToIdentity();
-    projection.perspective(45.0f, float(w) / float(h), 0.1f, 100.0f);
+	projection.setToIdentity();
+	projection.perspective(45.0f, float(w) / float(h), 0.1f, 100.0f);
 }
 
 
-void OpenGLWidget::paintGL()
-{
-    glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void OpenGLWidget::paintGL() {
+	glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    QMatrix4x4 view;
-    view.setToIdentity();
-    view.translate(0, 0, -cameraDistance);  // <-- тепер враховується zoom завжди
+	if (indexCount == 0 || !shader.isLinked())
+		return;
 
-    model.setToIdentity();
-    model.rotate(rotationX, 1.0f, 0.0f, 0.0f);
-    model.rotate(rotationY, 0.0f, 1.0f, 0.0f);
+	QMatrix4x4 view, model;
+	view.translate(0, 0, -cameraDistance); // використовуй zoom
+	model.setToIdentity();
+	model.rotate(rotationX, 1.0f, 0.0f, 0.0f);  // обертання по X
+	model.rotate(rotationY, 0.0f, 1.0f, 0.0f);  // обертання по Y
 
-    shaderProgram->bind();
-    shaderProgram->setUniformValue("proj", projection * view * model);
 
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+	shader.bind();
+	shader.setUniformValue("model", model);
+	shader.setUniformValue("view", view);
+	shader.setUniformValue("projection", projection);
+
+
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
 }
+
 
 
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
-    lastMousePos = event->pos();
+	lastMousePos = event->pos();
 }
 
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
-    QPointF pos = event->position();
-    int dx = int(pos.x() - lastMousePos.x());
-    int dy = int(pos.y() - lastMousePos.y());
+	QPointF pos = event->position();
+	int dx = int(pos.x() - lastMousePos.x());
+	int dy = int(pos.y() - lastMousePos.y());
 
-    rotationX += dy * 0.5f;
-    rotationY += dx * 0.5f;
+	rotationX += dy * 0.5f;
+	rotationY += dx * 0.5f;
 
-    lastMousePos = event->pos();
-    update();  // перерисувати сцену
+	lastMousePos = event->pos();
+	update();  // перерисувати сцену
 }
 
 void OpenGLWidget::wheelEvent(QWheelEvent* event)
 {
-    if (event->angleDelta().y() > 0)
-        cameraDistance -= 0.2f;  // приближення
-    else
-        cameraDistance += 0.2f;  // віддалення
+	if (event->angleDelta().y() > 0)
+		cameraDistance -= 0.2f;  // приближення
+	else
+		cameraDistance += 0.2f;  // віддалення
 
-    cameraDistance = std::clamp(cameraDistance, 1.0f, 10.0f); // обмеження
+	cameraDistance = std::clamp(cameraDistance, 1.0f, 10.0f); // обмеження
 
-    update();  // перерисувати
+	update();  // перерисувати
+}
+
+void OpenGLWidget::loadModel(const QString& path) {
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path.toStdString(),
+		aiProcess_Triangulate |
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_PreTransformVertices);
+
+	if (!scene || !scene->HasMeshes()) {
+		qWarning() << "Assimp load error:" << importer.GetErrorString();
+		return;
+	}
+
+	aiMesh* mesh = scene->mMeshes[0];
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+		aiVector3D pos = mesh->mVertices[i];
+		vertices.push_back(pos.x);
+		vertices.push_back(pos.y);
+		vertices.push_back(pos.z);
+
+		aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[i] : aiVector3D(0, 0, 1);
+		vertices.push_back(normal.x);
+		vertices.push_back(normal.y);
+		vertices.push_back(normal.z);
+
+	}
+
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; ++j)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	// Очистка попередніх даних
+	if (VAO) glDeleteVertexArrays(1, &VAO);
+	if (VBO) glDeleteBuffers(1, &VBO);
+	if (EBO) glDeleteBuffers(1, &EBO);
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);          // position
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));  // normal
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+
+	indexCount = indices.size();
+	update(); // перерисовка
 }

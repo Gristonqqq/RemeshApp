@@ -14,8 +14,12 @@ class RemeshApp : public QMainWindow
 public:
     RemeshApp(QWidget *parent = nullptr);
     ~RemeshApp();
-
+    QString pendingModelPath;
 private:
-    Ui::RemeshAppClass ui;
+    Ui::RemeshAppClass* ui;
+    OpenGLWidget* oglWidget;
+    bool oglWidgetReady = false;
+private slots:
+    void on_actionImport_obj_triggered();
 };
 

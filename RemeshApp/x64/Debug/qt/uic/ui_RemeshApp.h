@@ -28,9 +28,9 @@ QT_BEGIN_NAMESPACE
 class Ui_RemeshAppClass
 {
 public:
-    QAction *action_obj;
-    QAction *action_fbx;
-    QAction *action_stl;
+    QAction *actionImport_obj;
+    QAction *actionImport_fbx;
+    QAction *actionImport_stl;
     QAction *action_obj_2;
     QAction *action_fbx_2;
     QAction *action_stl_2;
@@ -62,12 +62,12 @@ public:
         RemeshAppClass->setMinimumSize(QSize(900, 600));
         RemeshAppClass->setFocusPolicy(Qt::FocusPolicy::NoFocus);
         RemeshAppClass->setStyleSheet(QString::fromUtf8(""));
-        action_obj = new QAction(RemeshAppClass);
-        action_obj->setObjectName("action_obj");
-        action_fbx = new QAction(RemeshAppClass);
-        action_fbx->setObjectName("action_fbx");
-        action_stl = new QAction(RemeshAppClass);
-        action_stl->setObjectName("action_stl");
+        actionImport_obj = new QAction(RemeshAppClass);
+        actionImport_obj->setObjectName("actionImport_obj");
+        actionImport_fbx = new QAction(RemeshAppClass);
+        actionImport_fbx->setObjectName("actionImport_fbx");
+        actionImport_stl = new QAction(RemeshAppClass);
+        actionImport_stl->setObjectName("actionImport_stl");
         action_obj_2 = new QAction(RemeshAppClass);
         action_obj_2->setObjectName("action_obj_2");
         action_fbx_2 = new QAction(RemeshAppClass);
@@ -297,9 +297,9 @@ public:
 
         menuBar->addAction(menuImport->menuAction());
         menuBar->addAction(menuExport->menuAction());
-        menuImport->addAction(action_obj);
-        menuImport->addAction(action_fbx);
-        menuImport->addAction(action_stl);
+        menuImport->addAction(actionImport_obj);
+        menuImport->addAction(actionImport_fbx);
+        menuImport->addAction(actionImport_stl);
         menuExport->addAction(action_obj_2);
         menuExport->addAction(action_fbx_2);
         menuExport->addAction(action_stl_2);
@@ -312,9 +312,9 @@ public:
     void retranslateUi(QMainWindow *RemeshAppClass)
     {
         RemeshAppClass->setWindowTitle(QCoreApplication::translate("RemeshAppClass", "RemeshApp", nullptr));
-        action_obj->setText(QCoreApplication::translate("RemeshAppClass", ".obj", nullptr));
-        action_fbx->setText(QCoreApplication::translate("RemeshAppClass", ".fbx", nullptr));
-        action_stl->setText(QCoreApplication::translate("RemeshAppClass", ".stl", nullptr));
+        actionImport_obj->setText(QCoreApplication::translate("RemeshAppClass", ".obj", nullptr));
+        actionImport_fbx->setText(QCoreApplication::translate("RemeshAppClass", ".fbx", nullptr));
+        actionImport_stl->setText(QCoreApplication::translate("RemeshAppClass", ".stl", nullptr));
         action_obj_2->setText(QCoreApplication::translate("RemeshAppClass", ".obj", nullptr));
         action_fbx_2->setText(QCoreApplication::translate("RemeshAppClass", ".fbx", nullptr));
         action_stl_2->setText(QCoreApplication::translate("RemeshAppClass", ".stl", nullptr));

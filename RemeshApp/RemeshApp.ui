@@ -762,9 +762,9 @@ border-bottom-right-radius: 6px;</string>
     <property name="title">
      <string>Import</string>
     </property>
-    <addaction name="action_obj"/>
-    <addaction name="action_fbx"/>
-    <addaction name="action_stl"/>
+    <addaction name="actionImport_obj"/>
+    <addaction name="actionImport_fbx"/>
+    <addaction name="actionImport_stl"/>
    </widget>
    <widget class="QMenu" name="menuExport">
     <property name="title">
@@ -777,17 +777,17 @@ border-bottom-right-radius: 6px;</string>
    <addaction name="menuImport"/>
    <addaction name="menuExport"/>
   </widget>
-  <action name="action_obj">
+  <action name="actionImport_obj">
    <property name="text">
     <string>.obj</string>
    </property>
   </action>
-  <action name="action_fbx">
+  <action name="actionImport_fbx">
    <property name="text">
     <string>.fbx</string>
    </property>
   </action>
-  <action name="action_stl">
+  <action name="actionImport_stl">
    <property name="text">
     <string>.stl</string>
    </property>

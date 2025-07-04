@@ -12,27 +12,28 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 public:
     explicit OpenGLWidget(QWidget* parent = nullptr);
     ~OpenGLWidget();
+    void loadModel(const QString& path);
 
 protected:
     void initializeGL() override;
-    void resizeGL(int w, int h) override;
     void paintGL() override;
+    void resizeGL(int w, int h) override;
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
 
     void wheelEvent(QWheelEvent* event) override;
+
+    void updateModel(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
 private:
-    GLuint VAO, VBO, EBO;
-    QOpenGLShaderProgram* shaderProgram;
-
-
-    QMatrix4x4 projection;
-    QMatrix4x4 model;
-
-    QPoint lastMousePos;
-    float rotationX = 0.0f;
-    float rotationY = 0.0f;
+    QOpenGLShaderProgram shader;
+    GLuint VAO = 0, VBO = 0, EBO = 0;
+    int indexCount = 0;
 
     float cameraDistance = 3.0f;
+    float rotationX = 0.0f, rotationY = 0.0f;
+    QMatrix4x4 projection, model;
+    QPoint lastMousePos;
+signals:
+    void glInitialized();
 };
