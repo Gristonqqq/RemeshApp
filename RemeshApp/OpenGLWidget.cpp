@@ -3,17 +3,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-float defaultVertices[] = {
-	// positions        // colors (поки що, можна змінити на нормалі)
-	-0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,
-	 0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f
-};
-
-unsigned int defaultIndices[] = {
-	0, 1, 2
-};
-
 OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {}
 
 OpenGLWidget::~OpenGLWidget() {
@@ -26,6 +15,7 @@ OpenGLWidget::~OpenGLWidget() {
 	}
 }
 
+// Initialize OpenGL context and shaders
 void OpenGLWidget::initializeGL() {
 	initializeOpenGLFunctions();
 	glEnable(GL_DEPTH_TEST);
@@ -75,17 +65,18 @@ void OpenGLWidget::initializeGL() {
 		qWarning() << "Shader link error:" << shader.log();
 	}
 
-	emit glInitialized(); // важливо для завантаження моделі
+	emit glInitialized();
 }
 
 
+// Resize OpenGL viewport and update projection matrix
 void OpenGLWidget::resizeGL(int w, int h)
 {
 	projection.setToIdentity();
 	projection.perspective(45.0f, float(w) / float(h), 0.1f, 100.0f);
 }
 
-
+// Paint the OpenGL scene
 void OpenGLWidget::paintGL() {
 	glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,10 +85,10 @@ void OpenGLWidget::paintGL() {
 		return;
 
 	QMatrix4x4 view, model;
-	view.translate(0, 0, -cameraDistance); // використовуй zoom
+	view.translate(0, 0, -cameraDistance);
 	model.setToIdentity();
-	model.rotate(rotationX, 1.0f, 0.0f, 0.0f);  // обертання по X
-	model.rotate(rotationY, 0.0f, 1.0f, 0.0f);  // обертання по Y
+	model.rotate(rotationX, 1.0f, 0.0f, 0.0f);
+	model.rotate(rotationY, 0.0f, 1.0f, 0.0f);
 
 
 	shader.bind();
@@ -112,12 +103,13 @@ void OpenGLWidget::paintGL() {
 }
 
 
-
+// Handle mouse press events to capture initial position
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
 	lastMousePos = event->pos();
 }
 
+// Handle mouse movement to update rotation angles
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
 	QPointF pos = event->position();
@@ -128,21 +120,23 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 	rotationY += dx * 0.5f;
 
 	lastMousePos = event->pos();
-	update();  // перерисувати сцену
+	update();
 }
 
+// Handle mouse wheel events for zooming in and out
 void OpenGLWidget::wheelEvent(QWheelEvent* event)
 {
 	if (event->angleDelta().y() > 0)
-		cameraDistance -= 0.2f;  // приближення
+		cameraDistance -= 0.2f;
 	else
-		cameraDistance += 0.2f;  // віддалення
+		cameraDistance += 0.2f;
 
-	cameraDistance = std::clamp(cameraDistance, 1.0f, 10.0f); // обмеження
+	cameraDistance = std::clamp(cameraDistance, 1.0f, 100.0f);
 
-	update();  // перерисувати
+	update();
 }
 
+// Load model from file using Assimp and update OpenGL buffers
 void OpenGLWidget::loadModel(const QString& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.toStdString(),
@@ -178,7 +172,6 @@ void OpenGLWidget::loadModel(const QString& path) {
 			indices.push_back(face.mIndices[j]);
 	}
 
-	// Очистка попередніх даних
 	if (VAO) glDeleteVertexArrays(1, &VAO);
 	if (VBO) glDeleteBuffers(1, &VBO);
 	if (EBO) glDeleteBuffers(1, &EBO);
@@ -195,14 +188,14 @@ void OpenGLWidget::loadModel(const QString& path) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);          // position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));  // normal
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 
 	indexCount = indices.size();
-	update(); // перерисовка
+	update();
 }

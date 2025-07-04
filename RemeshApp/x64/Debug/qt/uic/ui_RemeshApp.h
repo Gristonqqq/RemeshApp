@@ -298,8 +298,6 @@ public:
         menuBar->addAction(menuImport->menuAction());
         menuBar->addAction(menuExport->menuAction());
         menuImport->addAction(actionImport_obj);
-        menuImport->addAction(actionImport_fbx);
-        menuImport->addAction(actionImport_stl);
         menuExport->addAction(action_obj_2);
         menuExport->addAction(action_fbx_2);
         menuExport->addAction(action_stl_2);

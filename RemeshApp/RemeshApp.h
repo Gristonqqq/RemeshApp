@@ -21,5 +21,7 @@ private:
     bool oglWidgetReady = false;
 private slots:
     void on_actionImport_obj_triggered();
+    //void on_actionImport_fbx_triggered();
+    //void on_actionImport_stl_triggered();
 };
 
