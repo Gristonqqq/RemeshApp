@@ -41,7 +41,7 @@ public:
     OpenGLWidget *openGLWidget;
     QFrame *MenuTab;
     QVBoxLayout *verticalLayout;
-    QPushButton *showWire;
+    QPushButton *showWireframeButton;
     QLabel *label;
     QFrame *frame;
     QHBoxLayout *horizontalLayout;
@@ -119,15 +119,15 @@ public:
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName("verticalLayout");
         verticalLayout->setSizeConstraint(QLayout::SizeConstraint::SetDefaultConstraint);
-        showWire = new QPushButton(MenuTab);
-        showWire->setObjectName("showWire");
-        showWire->setEnabled(true);
+        showWireframeButton = new QPushButton(MenuTab);
+        showWireframeButton->setObjectName("showWireframeButton");
+        showWireframeButton->setEnabled(true);
         QSizePolicy sizePolicy1(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(showWire->sizePolicy().hasHeightForWidth());
-        showWire->setSizePolicy(sizePolicy1);
-        showWire->setMinimumSize(QSize(0, 30));
+        sizePolicy1.setHeightForWidth(showWireframeButton->sizePolicy().hasHeightForWidth());
+        showWireframeButton->setSizePolicy(sizePolicy1);
+        showWireframeButton->setMinimumSize(QSize(0, 30));
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::BrushStyle::SolidPattern);
@@ -212,14 +212,14 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Accent, brush2);
 #endif
-        showWire->setPalette(palette);
-        showWire->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
-        showWire->setStyleSheet(QString::fromUtf8("background-color: rgb(214, 214, 214);\n"
+        showWireframeButton->setPalette(palette);
+        showWireframeButton->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
+        showWireframeButton->setStyleSheet(QString::fromUtf8("background-color: rgb(214, 214, 214);\n"
 "color: rgb(83, 83, 83);"));
-        showWire->setCheckable(false);
-        showWire->setChecked(false);
+        showWireframeButton->setCheckable(false);
+        showWireframeButton->setChecked(false);
 
-        verticalLayout->addWidget(showWire);
+        verticalLayout->addWidget(showWireframeButton);
 
         label = new QLabel(MenuTab);
         label->setObjectName("label");
@@ -299,8 +299,6 @@ public:
         menuBar->addAction(menuExport->menuAction());
         menuImport->addAction(actionImport_obj);
         menuExport->addAction(action_obj_2);
-        menuExport->addAction(action_fbx_2);
-        menuExport->addAction(action_stl_2);
 
         retranslateUi(RemeshAppClass);
 
@@ -316,7 +314,7 @@ public:
         action_obj_2->setText(QCoreApplication::translate("RemeshAppClass", ".obj", nullptr));
         action_fbx_2->setText(QCoreApplication::translate("RemeshAppClass", ".fbx", nullptr));
         action_stl_2->setText(QCoreApplication::translate("RemeshAppClass", ".stl", nullptr));
-        showWire->setText(QCoreApplication::translate("RemeshAppClass", "Show wireframe", nullptr));
+        showWireframeButton->setText(QCoreApplication::translate("RemeshAppClass", "Show wireframe", nullptr));
         label->setText(QCoreApplication::translate("RemeshAppClass", "Remesh algorithm", nullptr));
         remeshTypeBlock->setText(QCoreApplication::translate("RemeshAppClass", "Block", nullptr));
         remeshTypeSharp->setText(QCoreApplication::translate("RemeshAppClass", "Sharp", nullptr));

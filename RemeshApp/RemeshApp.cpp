@@ -19,6 +19,18 @@ RemeshApp::RemeshApp(QWidget *parent)
             pendingModelPath.clear();
         }
         });
+    connect(ui->showWireframeButton, &QPushButton::clicked, this, [=]() {
+        oglWidget->showWireframe = !oglWidget->showWireframe;
+        oglWidget->update();
+
+        static bool toggled = false;
+        toggled = !toggled;
+
+        if (toggled)
+            ui->showWireframeButton->setStyleSheet("background-color: blue; color: white;");
+        else
+            ui->showWireframeButton->setStyleSheet("background-color: rgb(214, 214, 214); color: rgb(83, 83, 83); ");
+        });
 }
 
 RemeshApp::~RemeshApp()

@@ -14,6 +14,7 @@ public:
     ~OpenGLWidget();
     void loadModel(const QString& path);
 
+    bool showWireframe = false;
 protected:
     void initializeGL() override;
     void paintGL() override;

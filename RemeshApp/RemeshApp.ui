@@ -116,7 +116,7 @@
         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QPushButton" name="showWire">
+        <widget class="QPushButton" name="showWireframeButton">
          <property name="enabled">
           <bool>true</bool>
          </property>

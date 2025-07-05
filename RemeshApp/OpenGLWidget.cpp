@@ -35,7 +35,7 @@ void OpenGLWidget::initializeGL() {
 
 			void main() {
 				FragPos = vec3(model * vec4(aPos, 1.0));
-				Normal = mat3(transpose(inverse(model))) * aNormal;  // нормалі трансформуються
+				Normal = mat3(transpose(inverse(model))) * aNormal;
 
 				gl_Position = projection * view * vec4(FragPos, 1.0);
 			})");
@@ -47,19 +47,24 @@ void OpenGLWidget::initializeGL() {
 
 			out vec4 FragColor;
 
-			uniform vec3 lightDir = normalize(vec3(-0.5, -1.0, -0.3));
-			uniform vec3 lightColor = vec3(1.0);
-			uniform vec3 objectColor = vec3(0.7, 0.7, 0.7);
+			uniform vec3 lightDir;
+			uniform vec3 lightColor;
+			uniform vec3 objectColor;
+			uniform bool isWireframe;
 
 			void main() {
-				vec3 norm = normalize(Normal);
-				float diff = max(dot(norm, -lightDir), 0.0);  // напрямок світла
+				if (isWireframe) {
+					FragColor = vec4(0.0, 0.0, 0.0, 1.0);  // сітка чорна
+				} else {
+					vec3 norm = normalize(Normal);
+					float diff = max(dot(norm, -lightDir), 0.0);
+					vec3 diffuse = diff * lightColor;
+					vec3 result = diffuse * objectColor;
 
-				vec3 diffuse = diff * lightColor;
-				vec3 result = diffuse * objectColor;
-
-				FragColor = vec4(result, 1.0);
-			})");
+					FragColor = vec4(result, 1.0);
+				}
+			}
+			)");
 
 	if (!shader.link()) {
 		qWarning() << "Shader link error:" << shader.log();
@@ -81,24 +86,51 @@ void OpenGLWidget::paintGL() {
 	glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	shader.bind();
+	shader.setUniformValue("lightDir", QVector3D(-0.5f, -1.0f, -0.3f).normalized());
+	shader.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f));
+	shader.setUniformValue("objectColor", QVector3D(0.7f, 0.7f, 0.7f));
+
 	if (indexCount == 0 || !shader.isLinked())
 		return;
 
 	QMatrix4x4 view, model;
+	view.setToIdentity();
 	view.translate(0, 0, -cameraDistance);
 	model.setToIdentity();
 	model.rotate(rotationX, 1.0f, 0.0f, 0.0f);
 	model.rotate(rotationY, 0.0f, 1.0f, 0.0f);
 
-
 	shader.bind();
-	shader.setUniformValue("model", model);
-	shader.setUniformValue("view", view);
 	shader.setUniformValue("projection", projection);
+	shader.setUniformValue("view", view);
+	shader.setUniformValue("model", model);
 
+	// Draw the model
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.0f, 1.0f);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	shader.setUniformValue("isWireframe", false);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+
+	// Draw wireframe if enabled
+	if (showWireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(1.0f);
+
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE); 
+
+		shader.setUniformValue("isWireframe", true);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
 	glBindVertexArray(0);
 }
 
@@ -131,7 +163,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
 	else
 		cameraDistance += 0.2f;
 
-	cameraDistance = std::clamp(cameraDistance, 1.0f, 100.0f);
+	cameraDistance = std::clamp(cameraDistance, 0.1f, 100.0f);
 
 	update();
 }
