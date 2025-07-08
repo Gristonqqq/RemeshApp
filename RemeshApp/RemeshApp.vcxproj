@@ -109,12 +109,16 @@
     <QtRcc Include="RemeshApp.qrc" />
     <QtUic Include="RemeshApp.ui" />
     <QtMoc Include="RemeshApp.h" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="OpenGLWidget.cpp" />
     <ClCompile Include="RemeshApp.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="OpenGLWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

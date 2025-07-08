@@ -43,10 +43,18 @@
     <ClCompile Include="OpenGLWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="OpenGLWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

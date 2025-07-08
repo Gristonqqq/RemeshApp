@@ -4,6 +4,7 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include "Mesh.h"
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 {
@@ -13,6 +14,7 @@ public:
     explicit OpenGLWidget(QWidget* parent = nullptr);
     ~OpenGLWidget();
     void loadModel(const QString& path);
+    void loadMeshToGPU(const Mesh& mesh);
 
     bool showWireframe = false;
 protected:
@@ -24,9 +26,9 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
 
     void wheelEvent(QWheelEvent* event) override;
-
-    void updateModel(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
 private:
+    Mesh currentMesh;
+
     QOpenGLShaderProgram shader;
     GLuint VAO = 0, VBO = 0, EBO = 0;
     int indexCount = 0;

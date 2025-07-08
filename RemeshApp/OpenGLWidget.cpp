@@ -2,6 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Mesh.h"
 
 OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent) {}
 
@@ -123,7 +124,7 @@ void OpenGLWidget::paintGL() {
 		glLineWidth(1.0f);
 
 		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE); 
+		glDisable(GL_CULL_FACE);
 
 		shader.setUniformValue("isWireframe", true);
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
@@ -174,6 +175,7 @@ void OpenGLWidget::loadModel(const QString& path) {
 	const aiScene* scene = importer.ReadFile(path.toStdString(),
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
+		aiProcess_GenSmoothNormals |
 		aiProcess_PreTransformVertices);
 
 	if (!scene || !scene->HasMeshes()) {
@@ -181,27 +183,43 @@ void OpenGLWidget::loadModel(const QString& path) {
 		return;
 	}
 
-	aiMesh* mesh = scene->mMeshes[0];
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
+	const aiMesh* mesh = scene->mMeshes[0];
+	currentMesh.clear();
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
 		aiVector3D pos = mesh->mVertices[i];
-		vertices.push_back(pos.x);
-		vertices.push_back(pos.y);
-		vertices.push_back(pos.z);
-
-		aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[i] : aiVector3D(0, 0, 1);
-		vertices.push_back(normal.x);
-		vertices.push_back(normal.y);
-		vertices.push_back(normal.z);
-
+		aiVector3D normal = mesh->mNormals ? mesh->mNormals[i] : aiVector3D(0, 0, 1);
+		currentMesh.vertices.push_back(QVector3D(pos.x, pos.y, pos.z));
+		currentMesh.normals.push_back(QVector3D(normal.x, normal.y, normal.z));
 	}
 
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			indices.push_back(face.mIndices[j]);
+		const aiFace& face = mesh->mFaces[i];
+		if (face.mNumIndices == 3) {
+			currentMesh.indices.push_back(face.mIndices[0]);
+			currentMesh.indices.push_back(face.mIndices[1]);
+			currentMesh.indices.push_back(face.mIndices[2]);
+		}
+	}
+
+	loadMeshToGPU(currentMesh);
+}
+
+//load mesh data to GPU buffers
+void OpenGLWidget::loadMeshToGPU(const Mesh& mesh) {
+	if (mesh.isEmpty()) return;
+
+	std::vector<float> vertexData;
+	for (int i = 0; i < mesh.vertices.size(); ++i) {
+		const QVector3D& pos = mesh.vertices[i];
+		const QVector3D& norm = mesh.normals[i];
+		vertexData.push_back(pos.x());
+		vertexData.push_back(pos.y());
+		vertexData.push_back(pos.z());
+
+		vertexData.push_back(norm.x());
+		vertexData.push_back(norm.y());
+		vertexData.push_back(norm.z());
 	}
 
 	if (VAO) glDeleteVertexArrays(1, &VAO);
@@ -215,19 +233,19 @@ void OpenGLWidget::loadModel(const QString& path) {
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), mesh.indices.data(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // позиції
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // нормалі
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 
-	indexCount = indices.size();
+	indexCount = static_cast<int>(mesh.indices.size());
 	update();
 }
