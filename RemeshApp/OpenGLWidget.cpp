@@ -21,7 +21,6 @@ void OpenGLWidget::initializeGL() {
 	initializeOpenGLFunctions();
 	glEnable(GL_DEPTH_TEST);
 
-	// Шейдери
 	shader.addShaderFromSourceCode(QOpenGLShader::Vertex,
 		R"(#version 330 core
 			layout (location = 0) in vec3 aPos;
@@ -84,6 +83,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 
 // Paint the OpenGL scene
 void OpenGLWidget::paintGL() {
+	qDebug() << "paintGL called, indexCount =" << indexCount;
 	glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -102,7 +102,6 @@ void OpenGLWidget::paintGL() {
 	model.rotate(rotationX, 1.0f, 0.0f, 0.0f);
 	model.rotate(rotationY, 0.0f, 1.0f, 0.0f);
 
-	shader.bind();
 	shader.setUniformValue("projection", projection);
 	shader.setUniformValue("view", view);
 	shader.setUniformValue("model", model);
@@ -174,9 +173,7 @@ void OpenGLWidget::loadModel(const QString& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path.toStdString(),
 		aiProcess_Triangulate |
-		aiProcess_JoinIdenticalVertices |
-		aiProcess_GenSmoothNormals |
-		aiProcess_PreTransformVertices);
+		aiProcess_GenSmoothNormals);
 
 	if (!scene || !scene->HasMeshes()) {
 		qWarning() << "Assimp load error:" << importer.GetErrorString();
@@ -207,6 +204,7 @@ void OpenGLWidget::loadModel(const QString& path) {
 
 //load mesh data to GPU buffers
 void OpenGLWidget::loadMeshToGPU(const Mesh& mesh) {
+	qDebug() << "Load to gpu started!";
 	if (mesh.isEmpty()) return;
 
 	std::vector<float> vertexData;

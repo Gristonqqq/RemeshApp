@@ -5,6 +5,7 @@
 
 struct Mesh
 {
+    std::string filePath;
     std::vector<QVector3D> vertices;
     std::vector<QVector3D> normals;
     std::vector<unsigned int> indices;
@@ -18,5 +19,5 @@ struct Mesh
     bool isEmpty() const {
         return vertices.empty() || indices.empty();
     }
+    void recalculateNormals();
 };
-

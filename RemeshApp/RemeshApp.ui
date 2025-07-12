@@ -684,7 +684,7 @@ border-bottom-left-radius: 6px;
 border-bottom-right-radius: 0px;</string>
             </property>
             <property name="text">
-             <string>Block</string>
+             <string>Uniform</string>
             </property>
            </widget>
           </item>
@@ -704,7 +704,7 @@ border-bottom-right-radius: 0px;</string>
 border-radius: 0px;</string>
             </property>
             <property name="text">
-             <string>Sharp</string>
+             <string>???</string>
             </property>
            </widget>
           </item>
@@ -727,11 +727,18 @@ border-bottom-left-radius: 0px;
 border-bottom-right-radius: 6px;</string>
             </property>
             <property name="text">
-             <string>Voxel</string>
+             <string>???</string>
             </property>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="doubleSpinBox">
+         <property name="value">
+          <double>0.100000000000000</double>
+         </property>
         </widget>
        </item>
        <item>

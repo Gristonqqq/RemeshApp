@@ -1,6 +1,12 @@
 {
   "dependencies": [
     "fmt",
-    "assimp"
+    "assimp",
+    "boost",
+    "vcglib",
+    "openmesh",
+    "cgal",
+    "gmp",
+    "mpfr"
   ]
 }

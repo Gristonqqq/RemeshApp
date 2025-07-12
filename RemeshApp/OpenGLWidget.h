@@ -17,6 +17,8 @@ public:
     void loadMeshToGPU(const Mesh& mesh);
 
     bool showWireframe = false;
+
+    Mesh& getMesh() { return currentMesh; }
 protected:
     void initializeGL() override;
     void paintGL() override;
