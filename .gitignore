@@ -11,3 +11,4 @@
 # Build results
 vcpkg_installed/
 x64/
+RemeshApp/out.obj

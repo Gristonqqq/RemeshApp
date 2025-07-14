@@ -23,6 +23,7 @@ private:
 private slots:
     void on_actionImport_obj_triggered();
     void onRemeshButtonClicked();
+    void on_actionExport_obj_triggered();
     //void on_actionImport_fbx_triggered();
     //void on_actionImport_stl_triggered();
 };

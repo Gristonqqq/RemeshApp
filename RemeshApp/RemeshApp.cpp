@@ -74,6 +74,64 @@ void RemeshApp::onRemeshButtonClicked() {
 
 }
 
+bool exportToOBJ(const Mesh& mesh, const QString& filePath)
+{
+    if (mesh.isEmpty()) return false;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+    QTextStream out(&file);
+
+    for (const auto& v : mesh.vertices) {
+        out << "v " << v.x() << " " << v.y() << " " << v.z() << "\n";
+    }
+
+    if (mesh.normals.size() == mesh.vertices.size()) {
+        for (const auto& n : mesh.normals) {
+            out << "vn " << n.x() << " " << n.y() << " " << n.z() << "\n";
+        }
+    }
+
+    for (size_t i = 0; i + 2 < mesh.indices.size(); i += 3) {
+        unsigned int i1 = mesh.indices[i] + 1;
+        unsigned int i2 = mesh.indices[i + 1] + 1;
+        unsigned int i3 = mesh.indices[i + 2] + 1;
+
+        if (mesh.normals.size() == mesh.vertices.size()) {
+            out << "f "
+                << i1 << "//" << i1 << " "
+                << i2 << "//" << i2 << " "
+                << i3 << "//" << i3 << "\n";
+        }
+        else {
+            out << "f " << i1 << " " << i2 << " " << i3 << "\n";
+        }
+    }
+
+    file.close();
+    return true;
+}
+
+void RemeshApp::on_actionExport_obj_triggered() {
+	Mesh& mesh = ui->openGLWidget->getMesh();
+    if (mesh.isEmpty()) return;
+
+    QString dir = QFileDialog::getExistingDirectory(this, "Оберіть папку для експорту");
+
+    if (dir.isEmpty()) return;
+
+    QString filePath = QDir(dir).filePath("export.obj");
+
+    if (exportToOBJ(mesh, filePath)) {
+        qDebug() << "Меш експортовано до:" << filePath;
+    }
+    else {
+        qWarning() << "Помилка експорту.";
+    }
+}
+
+
 // Uncomment these lines if you want to support FBX and STL formats(Import works with bugs)
 // MenuBar should have corresponding actions
 

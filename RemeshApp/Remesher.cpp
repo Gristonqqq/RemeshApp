@@ -57,7 +57,7 @@ void Remesher::remeshMesh(Mesh& mesh, double target_edge_length, int iterations)
     );
 
 	// library mesh saving
-    CGAL::IO::write_polygon_mesh("out.off", sm, CGAL::parameters::stream_precision(17));
+    //CGAL::IO::write_polygon_mesh("out.obj", sm, CGAL::parameters::stream_precision(17));
 
 	// load remeshed mesh into my own structure    
     mesh.clear();
