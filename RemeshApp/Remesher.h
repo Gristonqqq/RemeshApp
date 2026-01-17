@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Mesh.h"
+#include "CoreMesh.h"
 
 class Remesher
 {
 public:
-    static void remeshMesh(Mesh& mesh, double target_edge_length = 0.01, int iterations = 3);
+    static bool remeshMesh(CoreMesh& core,
+        double target_edge_length = 0.01,
+        int iterations = 3);
 };

@@ -1,24 +1,34 @@
 #pragma once
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QMouseEvent>
-#include "Mesh.h"
+
+#include "CoreMesh.h"
+#include "CpuMeshBuffer.h"
+#include "MeshGL.h"
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 {
     Q_OBJECT
-
 public:
     explicit OpenGLWidget(QWidget* parent = nullptr);
-    ~OpenGLWidget();
+    ~OpenGLWidget() override;
+
     void loadModel(const QString& path);
-    void loadMeshToGPU(const Mesh& mesh);
+
+    CoreMesh& coreMesh() { return m_core; }
+    const CoreMesh& coreMesh() const { return m_core; }
+
+    const CpuMeshBuffer& cpuMesh() const { return m_cpuCache; }
+
+    void setCoreMesh(CoreMesh core);
+    void refreshGPUFromCore(bool recomputeNormals = true);
 
     bool showWireframe = false;
 
-    Mesh& getMesh() { return currentMesh; }
 protected:
     void initializeGL() override;
     void paintGL() override;
@@ -26,19 +36,22 @@ protected:
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
-
     void wheelEvent(QWheelEvent* event) override;
+
+signals:
+    void glInitialized();
+
 private:
-    Mesh currentMesh;
+    void uploadToGPU();
+
+    CoreMesh      m_core;
+    CpuMeshBuffer m_cpuCache;
+    MeshGL        m_meshGL;
 
     QOpenGLShaderProgram shader;
-    GLuint VAO = 0, VBO = 0, EBO = 0;
-    int indexCount = 0;
 
     float cameraDistance = 3.0f;
     float rotationX = 0.0f, rotationY = 0.0f;
-    QMatrix4x4 projection, model;
+    QMatrix4x4 projection;
     QPoint lastMousePos;
-signals:
-    void glInitialized();
 };

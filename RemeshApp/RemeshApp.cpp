@@ -1,16 +1,23 @@
 #include "RemeshApp.h"
+
 #include "OpenGLWidget.h"
-#include <QFileDialog>
-#include <QDebug>
-#include <QTimer>
 #include "Remesher.h"
 
-RemeshApp::RemeshApp(QWidget *parent)
+#include <QFileDialog>
+#include <QDebug>
+#include <QDir>
+
+#include <CGAL/IO/polygon_mesh_io.h>
+
+// Constructor
+RemeshApp::RemeshApp(QWidget* parent)
     : QMainWindow(parent)
 {
     ui = new Ui::RemeshAppClass();
     ui->setupUi(this);
+
     oglWidget = ui->openGLWidget;
+
     connect(oglWidget, &OpenGLWidget::glInitialized, this, [this]() {
         if (!pendingModelPath.isEmpty()) {
             oglWidget->makeCurrent();
@@ -19,6 +26,7 @@ RemeshApp::RemeshApp(QWidget *parent)
             pendingModelPath.clear();
         }
         });
+
     connect(ui->showWireframeButton, &QPushButton::clicked, this, [=]() {
         oglWidget->showWireframe = !oglWidget->showWireframe;
         oglWidget->update();
@@ -35,140 +43,91 @@ RemeshApp::RemeshApp(QWidget *parent)
     connect(ui->pushButtonRemesh, &QPushButton::clicked, this, &RemeshApp::onRemeshButtonClicked);
 }
 
+// Destructor
 RemeshApp::~RemeshApp()
-{}
+{
+    delete ui;
+}
 
-// This function is triggered when the user selects "Import OBJ" from the menu
+// Slot for importing OBJ files
 void RemeshApp::on_actionImport_obj_triggered()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, "Import OBJ", "", "OBJ Files (*.obj)");
-    if (!filePath.isEmpty()) {
-        pendingModelPath = filePath;
+    const QString filePath = QFileDialog::getOpenFileName(this, "Import OBJ", "", "OBJ Files (*.obj)");
+    if (filePath.isEmpty())
+        return;
 
-        if (oglWidget->isValid()) {
-            oglWidget->makeCurrent();
-            oglWidget->loadModel(filePath);
-            oglWidget->doneCurrent();
-            pendingModelPath.clear();
-			Mesh& mesh = ui->openGLWidget->getMesh();
-			mesh.filePath = filePath.toStdString();
-        }
-        else {
-            qDebug() << "Waiting for OpenGL to initialize...";
-        }
+    pendingModelPath = filePath;
+
+    if (oglWidget->isValid()) {
+        oglWidget->makeCurrent();
+        oglWidget->loadModel(filePath);
+        oglWidget->doneCurrent();
+        pendingModelPath.clear();
+    }
+    else {
+        qDebug() << "Waiting for OpenGL to initialize...";
     }
 }
 
-void RemeshApp::onRemeshButtonClicked() {
-	Mesh& mesh = ui->openGLWidget->getMesh();
-    qDebug() << "Remesh button clicked!";
-    double targetEdgeLength = ui->doubleSpinBox->value();
-    qDebug() << "Before remesh:" << ui->openGLWidget->getMesh().vertices.size();
-    Remesher::remeshMesh(mesh, targetEdgeLength);
-    qDebug() << "After remesh:" << ui->openGLWidget->getMesh().vertices.size();
-
-    ui->openGLWidget->makeCurrent();
-    ui->openGLWidget->loadMeshToGPU(mesh);
-    ui->openGLWidget->doneCurrent();
-    ui->openGLWidget->update();
-
-}
-
-bool exportToOBJ(const Mesh& mesh, const QString& filePath)
+// Slot for remeshing the loaded mesh
+void RemeshApp::onRemeshButtonClicked()
 {
-    if (mesh.isEmpty()) return false;
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
-
-    QTextStream out(&file);
-
-    for (const auto& v : mesh.vertices) {
-        out << "v " << v.x() << " " << v.y() << " " << v.z() << "\n";
+    CoreMesh& core = oglWidget->coreMesh();
+    if (core.empty()) {
+        qWarning() << "No mesh loaded (core is empty).";
+        return;
     }
 
-    if (mesh.normals.size() == mesh.vertices.size()) {
-        for (const auto& n : mesh.normals) {
-            out << "vn " << n.x() << " " << n.y() << " " << n.z() << "\n";
-        }
+    const double targetEdgeLength = ui->doubleSpinBox->value();
+    qDebug() << "Remesh button clicked. targetEdgeLength =" << targetEdgeLength;
+
+    core.sanitizeAndTriangulate();
+
+    qDebug() << "Before remesh verts:" << core.sm.number_of_vertices()
+        << " faces:" << core.sm.number_of_faces();
+
+    const bool ok = Remesher::remeshMesh(core, targetEdgeLength, 3);
+
+    qDebug() << "After remesh verts:" << core.sm.number_of_vertices()
+        << " faces:" << core.sm.number_of_faces();
+
+    if (!ok) {
+        qWarning() << "Remesh failed.";
+        return;
     }
 
-    for (size_t i = 0; i + 2 < mesh.indices.size(); i += 3) {
-        unsigned int i1 = mesh.indices[i] + 1;
-        unsigned int i2 = mesh.indices[i + 1] + 1;
-        unsigned int i3 = mesh.indices[i + 2] + 1;
-
-        if (mesh.normals.size() == mesh.vertices.size()) {
-            out << "f "
-                << i1 << "//" << i1 << " "
-                << i2 << "//" << i2 << " "
-                << i3 << "//" << i3 << "\n";
-        }
-        else {
-            out << "f " << i1 << " " << i2 << " " << i3 << "\n";
-        }
-    }
-
-    file.close();
-    return true;
+    oglWidget->makeCurrent();
+    oglWidget->refreshGPUFromCore(true);
+    oglWidget->doneCurrent();
 }
 
-void RemeshApp::on_actionExport_obj_triggered() {
-	Mesh& mesh = ui->openGLWidget->getMesh();
-    if (mesh.isEmpty()) return;
+// Slot for exporting the mesh to an OBJ file
+static bool exportCoreToOBJ(const CoreMesh& core, const QString& filePath)
+{
+    if (core.empty()) return false;
 
-    QString dir = QFileDialog::getExistingDirectory(this, "Оберіть папку для експорту");
+    return CGAL::IO::write_polygon_mesh(
+        filePath.toStdString(),
+        core.sm,
+        CGAL::parameters::stream_precision(17)
+    );
+}
 
+// Slot for exporting the mesh to an OBJ file
+void RemeshApp::on_actionExport_obj_triggered()
+{
+    const CoreMesh& core = oglWidget->coreMesh();
+    if (core.empty()) return;
+
+    const QString dir = QFileDialog::getExistingDirectory(this, "Оберіть папку для експорту");
     if (dir.isEmpty()) return;
 
-    QString filePath = QDir(dir).filePath("export.obj");
+    const QString filePath = QDir(dir).filePath("export.obj");
 
-    if (exportToOBJ(mesh, filePath)) {
+    if (exportCoreToOBJ(core, filePath)) {
         qDebug() << "Меш експортовано до:" << filePath;
     }
     else {
         qWarning() << "Помилка експорту.";
     }
 }
-
-
-// Uncomment these lines if you want to support FBX and STL formats(Import works with bugs)
-// MenuBar should have corresponding actions
-
-/*
-void RemeshApp::on_actionImport_fbx_triggered()
-{
-    QString filePath = QFileDialog::getOpenFileName(this, "Import FBX", "", "FBX Files (*.fbx)");
-    if (!filePath.isEmpty()) {
-        pendingModelPath = filePath;
-
-        if (oglWidget->isValid()) {
-            oglWidget->makeCurrent();
-            oglWidget->loadModel(filePath);
-            oglWidget->doneCurrent();
-            pendingModelPath.clear();
-        }
-        else {
-            qDebug() << "Waiting for OpenGL to initialize...";
-        }
-    }
-}
-
-void RemeshApp::on_actionImport_stl_triggered()
-{
-    QString filePath = QFileDialog::getOpenFileName(this, "Import STL", "", "STL Files (*.stl)");
-    if (!filePath.isEmpty()) {
-        pendingModelPath = filePath;
-
-        if (oglWidget->isValid()) {
-            oglWidget->makeCurrent();
-            oglWidget->loadModel(filePath);
-            oglWidget->doneCurrent();
-            pendingModelPath.clear();
-        }
-        else {
-            qDebug() << "Waiting for OpenGL to initialize...";
-        }
-    }
-}
-*/

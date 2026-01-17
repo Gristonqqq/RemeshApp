@@ -1,84 +1,97 @@
-#include <CGAL/Simple_cartesian.h>
-#include <CGAL/Surface_mesh.h>
-#include <CGAL/Polygon_mesh_processing/remesh.h>
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include "Remesher.h"
-#include <QVector3D>
-#include <vector>
-#include "Mesh.h"
-#include <CGAL/Polygon_mesh_processing/triangulate_hole.h>
+
+#include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <CGAL/Polygon_mesh_processing/repair.h>
-#include <CGAL/Polygon_mesh_processing/IO/polygon_mesh_io.h>
-#include <qdebug.h>
+#include <CGAL/Polygon_mesh_processing/triangulate_faces.h>
+
+#include <QDebug>
 
 namespace PMP = CGAL::Polygon_mesh_processing;
 
-// CGAL typedefs
-typedef CGAL::Exact_predicates_inexact_constructions_kernel   K;
-typedef CGAL::Simple_cartesian<double> Kernel;
-typedef Kernel::Point_3 Point;
-typedef CGAL::Surface_mesh<Point> SurfaceMesh;
-
-void Remesher::remeshMesh(Mesh& mesh, double target_edge_length, int iterations)
+// Mark border edges as constrained in the given edge constraint map
+static void markBorderAsConstraints(CoreMesh::SMesh& sm,
+    CoreMesh::SMesh::Property_map<CoreMesh::SMesh::Edge_index, bool>& ecm)
 {
-    if (mesh.isEmpty()) return;
-
-    SurfaceMesh sm;
-
-	//Working with my own mesh structure
-    /*
-    std::vector<SurfaceMesh::Vertex_index> sm_vertices;
-    for (const QVector3D& v : mesh.vertices) {
-        sm_vertices.push_back(sm.add_vertex(Point(v.x(), v.y(), v.z())));
-    }
-
-    for (size_t i = 0; i < mesh.indices.size(); i += 3) {
-        SurfaceMesh::Vertex_index v0 = sm_vertices[mesh.indices[i]];
-        SurfaceMesh::Vertex_index v1 = sm_vertices[mesh.indices[i + 1]];
-        SurfaceMesh::Vertex_index v2 = sm_vertices[mesh.indices[i + 2]];
-
-        sm.add_face(v0, v1, v2);
-    }*/
-
-	// library mesh loading
-    if (!PMP::IO::read_polygon_mesh(mesh.filePath, sm) || !CGAL::is_triangle_mesh(sm))
+    for (auto e : sm.edges())
     {
-        qDebug() << "Invalid input.";
-        return ;
+        auto h = sm.halfedge(e);
+        if (sm.is_border(h) || sm.is_border(sm.opposite(h)))
+            ecm[e] = true;
     }
+}
 
-	// Remesh the surface mesh
-    PMP::isotropic_remeshing(
-        faces(sm),
-        target_edge_length,
-        sm,
-        PMP::parameters::number_of_iterations(iterations)
-        .protect_constraints(true)
+// Split constrained edges that are longer than maxLen
+static void splitTooLongConstraintEdges(CoreMesh::SMesh& sm,
+    CoreMesh::SMesh::Property_map<CoreMesh::SMesh::Edge_index, bool>& ecm,
+    double maxLen)
+{
+    std::vector<CoreMesh::SMesh::Edge_index> constrained;
+    constrained.reserve(sm.number_of_edges());
+
+    for (auto e : sm.edges())
+        if (ecm[e]) constrained.push_back(e);
+
+    if (constrained.empty()) return;
+
+    PMP::split_long_edges(constrained, maxLen, sm, PMP::parameters::edge_is_constrained_map(ecm));
+
+    markBorderAsConstraints(sm, ecm);
+}
+
+// Remesh the mesh with given target edge length and iterations
+bool Remesher::remeshMesh(CoreMesh& core, double target_edge_length, int iterations)
+{
+    if (core.empty() || target_edge_length <= 0.0)
+        return false;
+
+    core.sanitizeAndTriangulate();
+
+    try { PMP::duplicate_non_manifold_vertices(core.sm); }
+    catch (...) {}
+
+    auto ecm_pair = core.sm.add_property_map<CoreMesh::SMesh::Edge_index, bool>(
+        "e:is_constrained", false
     );
+    auto ecm = ecm_pair.first;
 
-	// library mesh saving
-    //CGAL::IO::write_polygon_mesh("out.obj", sm, CGAL::parameters::stream_precision(17));
+    markBorderAsConstraints(core.sm, ecm);
 
-	// load remeshed mesh into my own structure    
-    mesh.clear();
+    const double maxConstraintLen = (4.0 / 3.0) * target_edge_length;
 
-    std::map<SurfaceMesh::Vertex_index, int> index_map;
-    for (SurfaceMesh::Vertex_index v : sm.vertices()) {
-        const Point& p = sm.point(v);
-        mesh.vertices.push_back(QVector3D(p.x(), p.y(), p.z()));
-        index_map[v] = mesh.vertices.size() - 1;
+    for (int pass = 0; pass < 3; ++pass)
+        splitTooLongConstraintEdges(core.sm, ecm, maxConstraintLen);
+
+    std::vector<CoreMesh::SMesh::Face_index> faces;
+    faces.reserve(static_cast<size_t>(core.sm.number_of_faces()));
+    for (auto f : core.sm.faces())
+        faces.push_back(f);
+
+    if (faces.empty())
+        return false;
+
+    try {
+        PMP::isotropic_remeshing(
+            faces,
+            target_edge_length,
+            core.sm,
+            PMP::parameters::number_of_iterations(iterations)
+            .protect_constraints(true)
+            .edge_is_constrained_map(ecm)
+        );
+    }
+    catch (const CGAL::Precondition_exception& e) {
+        qWarning() << "Remesh precondition exception:" << e.what();
+        return false;
+    }
+    catch (const std::exception& e) {
+        qWarning() << "Remesh exception:" << e.what();
+        return false;
+    }
+    catch (...) {
+        qWarning() << "Remesh unknown exception";
+        return false;
     }
 
-    for (SurfaceMesh::Face_index f : sm.faces()) {
-        std::vector<unsigned int> face_indices;
-        for (auto v : CGAL::vertices_around_face(sm.halfedge(f), sm)) {
-            face_indices.push_back(index_map[v]);
-        }
-        if (face_indices.size() == 3) {
-            mesh.indices.insert(mesh.indices.end(), face_indices.begin(), face_indices.end());
-        }
-    }
-
-	// ecalculate normals for the remeshed mesh
-    mesh.recalculateNormals();
+    core.sanitizeAndTriangulate();
+    return true;
 }

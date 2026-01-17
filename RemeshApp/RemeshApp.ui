@@ -704,7 +704,7 @@ border-bottom-right-radius: 0px;</string>
 border-radius: 0px;</string>
             </property>
             <property name="text">
-             <string>???</string>
+             <string>soon</string>
             </property>
            </widget>
           </item>
@@ -727,7 +727,7 @@ border-bottom-left-radius: 0px;
 border-bottom-right-radius: 6px;</string>
             </property>
             <property name="text">
-             <string>???</string>
+             <string>soon</string>
             </property>
            </widget>
           </item>
