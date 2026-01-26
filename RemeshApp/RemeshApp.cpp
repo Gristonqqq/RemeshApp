@@ -1,13 +1,51 @@
 #include "RemeshApp.h"
 
 #include "OpenGLWidget.h"
-#include "Remesher.h"
 
 #include <QFileDialog>
 #include <QDebug>
 #include <QDir>
 
 #include <CGAL/IO/polygon_mesh_io.h>
+
+#include "DecimateStrategy.h"
+#include "SubdivideStrategy.h"
+#include "IsotropicRemeshStrategy.h"
+#include "IRemeshStrategy.h"
+#include "RemeshParams.h"
+
+// Helper to apply background color to existing style
+static QString applyBgColorToStyle(const QString& baseStyle, const QString& bgCss)
+{
+    return baseStyle + "\n" + bgCss;
+}
+
+// Set selected algorithm and update UI
+void RemeshApp::setSelectedAlgorithm(RemeshAlgo algo)
+{
+    m_selectedAlgo = algo;
+    updateAlgorithmButtonsUI();
+}
+
+// Set button selected state
+void RemeshApp::setButtonSelected(QPushButton* btn, bool selected, const QString& selectedColorCss)
+{
+    const QString base = m_baseBtnStyle.value(btn);
+
+    if (!selected) {
+        btn->setStyleSheet(base);
+        return;
+    }
+    btn->setStyleSheet(applyBgColorToStyle(base, selectedColorCss + " color: white;"));
+}
+
+// Update algorithm buttons UI
+void RemeshApp::updateAlgorithmButtonsUI()
+{
+    setButtonSelected(ui->btnDecimate,  m_selectedAlgo == RemeshAlgo::Decimate,  "background-color: rgb(52,152,219);");
+    setButtonSelected(ui->btnSubdivide, m_selectedAlgo == RemeshAlgo::Subdivide, "background-color: rgb(52,152,219);");
+    setButtonSelected(ui->btnIsotropic, m_selectedAlgo == RemeshAlgo::Isotropic, "background-color: rgb(52,152,219);");
+}
 
 // Constructor
 RemeshApp::RemeshApp(QWidget* parent)
@@ -16,7 +54,14 @@ RemeshApp::RemeshApp(QWidget* parent)
     ui = new Ui::RemeshAppClass();
     ui->setupUi(this);
 
+    m_baseBtnStyle[ui->btnDecimate] = ui->btnDecimate->styleSheet();
+    m_baseBtnStyle[ui->btnSubdivide] = ui->btnSubdivide->styleSheet();
+    m_baseBtnStyle[ui->btnIsotropic] = ui->btnIsotropic->styleSheet();
+
     oglWidget = ui->openGLWidget;
+
+    ui->pushButtonRemesh->setEnabled(false);
+
 
     connect(oglWidget, &OpenGLWidget::glInitialized, this, [this]() {
         if (!pendingModelPath.isEmpty()) {
@@ -35,12 +80,28 @@ RemeshApp::RemeshApp(QWidget* parent)
         toggled = !toggled;
 
         if (toggled)
-            ui->showWireframeButton->setStyleSheet("background-color: blue; color: white;");
+            ui->showWireframeButton->setStyleSheet("background-color: rgb(52,152,219); color: white;");
         else
             ui->showWireframeButton->setStyleSheet("background-color: rgb(214, 214, 214); color: rgb(83, 83, 83); ");
         });
 
     connect(ui->pushButtonRemesh, &QPushButton::clicked, this, &RemeshApp::onRemeshButtonClicked);
+    
+    connect(ui->btnDecimate, &QPushButton::clicked, this, [this]() {
+        setSelectedAlgorithm(RemeshAlgo::Decimate);
+        ui->stackedWidgeParameters->setCurrentIndex(2);
+        });
+    connect(ui->btnSubdivide, &QPushButton::clicked, this, [this]() {
+        setSelectedAlgorithm(RemeshAlgo::Subdivide);
+        ui->stackedWidgeParameters->setCurrentIndex(1);
+        });
+    connect(ui->btnIsotropic, &QPushButton::clicked, this, [this]() {
+        setSelectedAlgorithm(RemeshAlgo::Isotropic);
+        ui->stackedWidgeParameters->setCurrentIndex(0);
+        });
+    setSelectedAlgorithm(RemeshAlgo::Isotropic);
+    ui->stackedWidgeParameters->setCurrentIndex(0);
+    updateAlgorithmButtonsUI();
 }
 
 // Destructor
@@ -49,7 +110,7 @@ RemeshApp::~RemeshApp()
     delete ui;
 }
 
-// Slot for importing OBJ files
+// Slot for importing OBJ files 
 void RemeshApp::on_actionImport_obj_triggered()
 {
     const QString filePath = QFileDialog::getOpenFileName(this, "Import OBJ", "", "OBJ Files (*.obj)");
@@ -67,6 +128,8 @@ void RemeshApp::on_actionImport_obj_triggered()
     else {
         qDebug() << "Waiting for OpenGL to initialize...";
     }
+
+    ui->pushButtonRemesh->setEnabled(true);
 }
 
 // Slot for remeshing the loaded mesh
@@ -78,21 +141,49 @@ void RemeshApp::onRemeshButtonClicked()
         return;
     }
 
-    const double targetEdgeLength = ui->doubleSpinBox->value();
-    qDebug() << "Remesh button clicked. targetEdgeLength =" << targetEdgeLength;
+    RemeshParams params;
+    params.targetEdgeLength = ui->SpinBoxRes->value();
+    params.subdivLevels = ui->SpinBox_Subd_level->value();
+
+    params.iterations = 3;
+    params.decimateTargetFaces = 5000;
+
+    qDebug() << "Remesh button clicked. algo =" << int(m_selectedAlgo)
+        << " targetEdgeLength =" << params.targetEdgeLength;
 
     core.sanitizeAndTriangulate();
 
     qDebug() << "Before remesh verts:" << core.sm.number_of_vertices()
         << " faces:" << core.sm.number_of_faces();
 
-    const bool ok = Remesher::remeshMesh(core, targetEdgeLength, 3);
+    bool ok = false;
+    QString err;
+
+    switch (m_selectedAlgo)
+    {
+    case RemeshAlgo::Decimate: {
+        DecimateStrategy s;
+        ok = s.run(core, params, &err);
+        break;
+    }
+    case RemeshAlgo::Subdivide: {
+        SubdivideStrategy s;
+        ok = s.run(core, params, &err);
+        break;
+    }
+    case RemeshAlgo::Isotropic:
+    default: {
+        IsotropicRemeshStrategy s;
+        ok = s.run(core, params, &err);
+        break;
+    }
+    }
 
     qDebug() << "After remesh verts:" << core.sm.number_of_vertices()
         << " faces:" << core.sm.number_of_faces();
 
     if (!ok) {
-        qWarning() << "Remesh failed.";
+        qWarning() << "Remesh failed:" << err;
         return;
     }
 

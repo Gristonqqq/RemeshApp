@@ -43,9 +43,6 @@
     <ClCompile Include="OpenGLWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Remesher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MeshGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,9 +52,24 @@
     <ClCompile Include="CoreMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IsotropicRemeshStrategy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DecimateStrategy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SubdivideStrategy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="OpenGLWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LogManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -65,13 +77,25 @@
     <ClInclude Include="MeshGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Remesher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CpuMeshBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoreMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemeshParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IRemeshStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IsotropicRemeshStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DecimateStrategy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubdivideStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -121,9 +121,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CoreMesh.cpp" />
+    <ClCompile Include="DecimateStrategy.cpp" />
+    <ClCompile Include="IsotropicRemeshStrategy.cpp" />
+    <ClCompile Include="LogManager.cpp" />
     <ClCompile Include="MeshGL.cpp" />
     <ClCompile Include="CpuMeshBuffer.cpp" />
-    <ClCompile Include="Remesher.cpp" />
+    <ClCompile Include="SubdivideStrategy.cpp" />
     <QtRcc Include="RemeshApp.qrc" />
     <QtUic Include="RemeshApp.ui" />
     <QtMoc Include="RemeshApp.h" />
@@ -136,9 +139,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CoreMesh.h" />
+    <ClInclude Include="DecimateStrategy.h" />
+    <ClInclude Include="IRemeshStrategy.h" />
+    <ClInclude Include="IsotropicRemeshStrategy.h" />
+    <QtMoc Include="LogManager.h" />
     <ClInclude Include="MeshGL.h" />
     <ClInclude Include="CpuMeshBuffer.h" />
-    <ClInclude Include="Remesher.h" />
+    <ClInclude Include="RemeshParams.h" />
+    <ClInclude Include="SubdivideStrategy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

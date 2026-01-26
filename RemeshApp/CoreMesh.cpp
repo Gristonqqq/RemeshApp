@@ -7,6 +7,7 @@
 
 namespace PMP = CGAL::Polygon_mesh_processing;
 
+// Hash for CGAL indices
 namespace
 {
     template <typename IndexT>

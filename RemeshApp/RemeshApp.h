@@ -2,8 +2,18 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_RemeshApp.h"
+#include <QHash>
+#include <QPushButton>
+
 
 class OpenGLWidget;
+
+enum class RemeshAlgo
+{
+    Decimate,
+    Subdivide,
+    Isotropic
+};
 
 class RemeshApp : public QMainWindow
 {
@@ -17,7 +27,13 @@ public:
 private:
     Ui::RemeshAppClass* ui = nullptr;
     OpenGLWidget* oglWidget = nullptr;
+    QHash<QPushButton*, QString> m_baseBtnStyle;
 
+    RemeshAlgo m_selectedAlgo = RemeshAlgo::Isotropic;
+
+    void setSelectedAlgorithm(RemeshAlgo algo);
+    void updateAlgorithmButtonsUI();
+    void setButtonSelected(QPushButton* btn, bool selected, const QString& selectedColorCss);
 private slots:
     void on_actionImport_obj_triggered();
     void onRemeshButtonClicked();
