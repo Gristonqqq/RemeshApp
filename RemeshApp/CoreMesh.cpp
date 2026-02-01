@@ -4,6 +4,7 @@
 #include <CGAL/Polygon_mesh_processing/triangulate_faces.h>
 #include <CGAL/Polygon_mesh_processing/repair.h>
 #include <unordered_map>
+#include <CGAL/Polygon_mesh_processing/stitch_borders.h>
 
 namespace PMP = CGAL::Polygon_mesh_processing;
 
@@ -30,6 +31,9 @@ bool CoreMesh::sanitizeAndTriangulate()
     PMP::remove_degenerate_faces(sm);
 
     PMP::triangulate_faces(sm);
+
+    try { PMP::stitch_borders(sm); }
+    catch (...) {}
 
     PMP::remove_isolated_vertices(sm);
 

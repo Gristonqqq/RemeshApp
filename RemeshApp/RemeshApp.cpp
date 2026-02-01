@@ -144,9 +144,7 @@ void RemeshApp::onRemeshButtonClicked()
     RemeshParams params;
     params.targetEdgeLength = ui->SpinBoxRes->value();
     params.subdivLevels = ui->SpinBox_Subd_level->value();
-
-    params.iterations = 3;
-    params.decimateTargetFaces = 5000;
+    params.decimateRatio = ui->SpinBox_decim_ratio->value();
 
     qDebug() << "Remesh button clicked. algo =" << int(m_selectedAlgo)
         << " targetEdgeLength =" << params.targetEdgeLength;
