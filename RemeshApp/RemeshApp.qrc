@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="RemeshApp">
+    <qresource prefix="/icons">
+		<file alias="check.png">resources/icons/check.png</file>
     </qresource>
 </RCC>

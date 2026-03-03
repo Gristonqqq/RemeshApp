@@ -42,9 +42,9 @@ void RemeshApp::setButtonSelected(QPushButton* btn, bool selected, const QString
 // Update algorithm buttons UI
 void RemeshApp::updateAlgorithmButtonsUI()
 {
-    setButtonSelected(ui->btnDecimate,  m_selectedAlgo == RemeshAlgo::Decimate,  "background-color: rgb(52,152,219);");
-    setButtonSelected(ui->btnSubdivide, m_selectedAlgo == RemeshAlgo::Subdivide, "background-color: rgb(52,152,219);");
-    setButtonSelected(ui->btnIsotropic, m_selectedAlgo == RemeshAlgo::Isotropic, "background-color: rgb(52,152,219);");
+    setButtonSelected(ui->btnDecimate,  m_selectedAlgo == RemeshAlgo::Decimate,  "background-color: rgb(71,114,179);");
+    setButtonSelected(ui->btnSubdivide, m_selectedAlgo == RemeshAlgo::Subdivide, "background-color: rgb(71,114,179);");
+    setButtonSelected(ui->btnIsotropic, m_selectedAlgo == RemeshAlgo::Isotropic, "background-color: rgb(71,114,179);");
 }
 
 // Constructor
@@ -80,9 +80,9 @@ RemeshApp::RemeshApp(QWidget* parent)
         toggled = !toggled;
 
         if (toggled)
-            ui->showWireframeButton->setStyleSheet("background-color: rgb(52,152,219); color: white;");
+            ui->showWireframeButton->setStyleSheet("background-color: rgb(71,114,179); color: rgb(203, 203, 203);");
         else
-            ui->showWireframeButton->setStyleSheet("background-color: rgb(214, 214, 214); color: rgb(83, 83, 83); ");
+            ui->showWireframeButton->setStyleSheet("background-color: rgb(84, 84, 84); color: rgb(203, 203, 203); ");
         });
 
     connect(ui->pushButtonRemesh, &QPushButton::clicked, this, &RemeshApp::onRemeshButtonClicked);

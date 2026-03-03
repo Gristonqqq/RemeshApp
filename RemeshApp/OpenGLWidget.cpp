@@ -67,9 +67,13 @@ void OpenGLWidget::initializeGL()
                    FragColor = vec4(0.0, 0.0, 0.0, 1.0);
                } else {
                    vec3 norm = normalize(Normal);
-                   float diff = max(dot(norm, -lightDir), 0.0);
+                   vec3 L = normalize(-lightDir);  
+                   float diff = max(dot(norm, L), 0.0);
+                   
+                   vec3 ambient = 0.2 * lightColor;
                    vec3 diffuse = diff * lightColor;
-                   vec3 result = diffuse * objectColor;
+                   
+                   vec3 result = (ambient + diffuse) * objectColor;
                    FragColor = vec4(result, 1.0);
                }
            })"
@@ -92,7 +96,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 // Paint OpenGL scene
 void OpenGLWidget::paintGL()
 {
-    glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
+    glClearColor(0.247f, 0.247f, 0.247f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!shader.isLinked() || m_meshGL.isEmpty())

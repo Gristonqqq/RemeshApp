@@ -127,7 +127,7 @@ bool IsotropicRemeshStrategy::run(CoreMesh& core, const RemeshParams& p, QString
     }
 
     const int iters = (p.iterations > 0) ? p.iterations : 1;
-    const int itersUse = std::max(iters, 10);
+    const int itersUse = std::max(iters, 1);
 
     core.sanitizeAndTriangulate();
 
@@ -155,7 +155,7 @@ bool IsotropicRemeshStrategy::run(CoreMesh& core, const RemeshParams& p, QString
 
     const double maxConstraintLen = (4.0 / 3.0) * target;
 
-    for (int pass = 0; pass < 3; ++pass) {
+    for (int pass = 0; pass < 1; ++pass) {
         const double mx = maxConstrainedEdgeLength(core.sm, ecm);
         qInfo() << "[IsoRemesh] split pass" << pass
             << "maxBorderEdge=" << mx
@@ -192,9 +192,9 @@ bool IsotropicRemeshStrategy::run(CoreMesh& core, const RemeshParams& p, QString
             target,
             core.sm,
             PMP::parameters::number_of_iterations(itersUse)
-            .number_of_relaxation_steps(5)
-            .protect_constraints(true)
-            .edge_is_constrained_map(ecm)
+            .number_of_relaxation_steps(1)
+            //.protect_constraints(true)
+            //.edge_is_constrained_map(ecm)
         );
     }
     catch (const std::exception& e) {
