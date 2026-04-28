@@ -1,0 +1,174 @@
+/* Global text color */
+QWidget {
+    color: #E6E6E6;
+}
+
+/* base */
+QMainWindow {
+    background-color: #2B2B2B;
+}
+
+/* common rounded frames */
+QFrame#ViewPort,
+QFrame#MenuTab,
+QFrame#gridFrame_2,
+QFrame#gridFrame,
+QFrame#gridFrame_3 {
+    border-radius: 6px;
+}
+
+/* Viewport container */
+QFrame#ViewPort {
+    background-color: #3F3F3F;
+    border: 3px solid #3F3F3F;
+}
+
+/* Right pannel */
+QFrame#MenuTab {
+    background-color: #303030;
+}
+
+/* Blocks inside manuTab */
+QFrame#gridFrame_2,
+QFrame#gridFrame,
+QFrame#gridFrame_3 {
+    border: 1px solid #4A4A4A;
+    background-color: #3D3D3D;
+}
+
+/* Algorithm choose buttons */
+QPushButton#btnIsotropic,
+QPushButton#btnSubdivide,
+QPushButton#btnDecimate {
+    border: 1px solid #8F8F91;
+    background-color: #545454;
+    color: #E6E6E6;
+}
+
+/* selected state */
+QPushButton#btnIsotropic[selected="true"],
+QPushButton#btnSubdivide[selected="true"],
+QPushButton#btnDecimate[selected="true"] {
+    background-color: rgb(71,114,179);
+    color: white;
+}
+
+/* Buttons geometry */
+QPushButton#btnIsotropic {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+QPushButton#btnSubdivide {
+    border-radius: 0px;
+}
+
+QPushButton#btnDecimate {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+/* Remesh button */
+QPushButton#pushButtonRemesh,
+QPushButton#showWireframeButton {
+    background-color: #545454;
+    color: #E6E6E6;
+    border: 1px solid #6A6A6A;
+    border-radius: 6px;
+    min-height: 30px;
+}
+
+QDoubleSpinBox,
+QSpinBox {
+    background-color: #4A4A4A;
+    color: #E6E6E6;
+    border: 1px solid #6A6A6A;
+    border-radius: 4px;
+    padding-right: 22px;
+    min-height: 24px;
+}
+
+QDoubleSpinBox::up-button,
+QSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+    background-color: #555555;
+    border-left: 1px solid #6A6A6A;
+    border-bottom: 1px solid #6A6A6A;
+    border-top-right-radius: 4px;
+}
+
+QDoubleSpinBox::down-button,
+QSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
+    background-color: #555555;
+    border-left: 1px solid #6A6A6A;
+    border-bottom-right-radius: 4px;
+}
+
+QDoubleSpinBox::up-button:hover,
+QSpinBox::up-button:hover,
+QDoubleSpinBox::down-button:hover,
+QSpinBox::down-button:hover {
+    background-color: #666666;
+}
+
+QPushButton#showWireframeButton[toggled="true"] {
+    background-color: #4772B3;
+    color: #E6E6E6;
+}
+
+QPushButton#showWireframeButton[toggled="false"] {
+    background-color: #545454;
+}
+
+/* Верхня панель меню */
+QMenuBar {
+    background-color: #2B2B2B;
+    color: #E6E6E6;
+}
+
+/* Пункти меню (File/Edit/...) */
+QMenuBar::item {
+
+}
+
+/* Наведення мишкою */
+QMenuBar::item:selected {
+    background-color: #3A3A3A;
+}
+
+/* Натиснуто */
+QMenuBar::item:pressed {
+    background-color: #4A4A4A;
+    border-radius: 6px;
+}
+
+/* Випадаючий список */
+QMenu {
+    background-color: #353535;
+    color: #E6E6E6;
+    border-radius: 6px;
+    border: none;
+    outline: 0;
+}
+
+QMenu::item {
+    padding: 6px 16px;
+    border-radius: 6px;
+    margin: 2px 6px;
+}
+
+/* Наведення на пункт у випадаючому меню */
+QMenu::item:selected {
+    background-color: #555555;
+    border: 1px solid #6A6A6A;
+    border-radius: 6px;
+}

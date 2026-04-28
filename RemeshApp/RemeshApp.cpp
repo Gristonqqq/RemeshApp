@@ -5,6 +5,11 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QDir>
+#include <QSet>
+#include <qstyle.h>
+#include <QStyleFactory>
+#include <QTimer>
+#include <QResizeEvent>
 
 #include <CGAL/IO/polygon_mesh_io.h>
 
@@ -13,6 +18,8 @@
 #include "IsotropicRemeshStrategy.h"
 #include "IRemeshStrategy.h"
 #include "RemeshParams.h"
+#include <QActionGroup>
+
 
 // Helper to apply background color to existing style
 static QString applyBgColorToStyle(const QString& baseStyle, const QString& bgCss)
@@ -28,23 +35,84 @@ void RemeshApp::setSelectedAlgorithm(RemeshAlgo algo)
 }
 
 // Set button selected state
-void RemeshApp::setButtonSelected(QPushButton* btn, bool selected, const QString& selectedColorCss)
+static void setSelectedProp(QWidget* w, bool selected)
 {
-    const QString base = m_baseBtnStyle.value(btn);
-
-    if (!selected) {
-        btn->setStyleSheet(base);
-        return;
-    }
-    btn->setStyleSheet(applyBgColorToStyle(base, selectedColorCss + " color: white;"));
+    w->setProperty("selected", selected);
+    w->style()->unpolish(w);
+    w->style()->polish(w);
+    w->update();
 }
 
-// Update algorithm buttons UI
+// Update algorithm buttons UI based on selected algorithm
 void RemeshApp::updateAlgorithmButtonsUI()
 {
-    setButtonSelected(ui->btnDecimate,  m_selectedAlgo == RemeshAlgo::Decimate,  "background-color: rgb(71,114,179);");
-    setButtonSelected(ui->btnSubdivide, m_selectedAlgo == RemeshAlgo::Subdivide, "background-color: rgb(71,114,179);");
-    setButtonSelected(ui->btnIsotropic, m_selectedAlgo == RemeshAlgo::Isotropic, "background-color: rgb(71,114,179);");
+    setSelectedProp(ui->btnDecimate, m_selectedAlgo == RemeshAlgo::Decimate);
+    setSelectedProp(ui->btnSubdivide, m_selectedAlgo == RemeshAlgo::Subdivide);
+    setSelectedProp(ui->btnIsotropic, m_selectedAlgo == RemeshAlgo::Isotropic);
+}
+
+// Update wireframe button UI based on current state
+void RemeshApp::clearInlineStyleSheets()
+{
+    const auto widgets = this->findChildren<QWidget*>();
+    for (QWidget* w : widgets) {
+        if (!w) continue;
+
+        if (!w->styleSheet().isEmpty())
+            w->setStyleSheet(QString());
+    }
+}
+
+// Helper to load QSS content from a file
+QString RemeshApp::loadQss(const QString& path) const
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open QSS:" << path << f.errorString();
+        return {};
+    }
+    return QString::fromUtf8(f.readAll());
+}
+
+// Build combined QSS for the selected theme
+QString RemeshApp::buildThemeQss(Theme t) const
+{
+    if (t == Theme::Dark) {
+        return loadQss(":/themes/dark/widgets.qss") + "\n" +
+            loadQss(":/themes/dark/checkbox.qss");
+    }
+    else {
+        return loadQss(":/themes/light/widgets.qss") + "\n" +
+            loadQss(":/themes/light/checkbox.qss");
+    }
+}
+
+// Apply dark theme by loading and combining QSS files
+void RemeshApp::setTheme(Theme t)
+{
+    m_theme = t;
+
+    clearInlineStyleSheets();
+
+    const QString qss = buildThemeQss(t);
+
+    qApp->setStyleSheet(QString());
+    qApp->setStyleSheet(qss);
+
+    if (oglWidget) {
+        oglWidget->setTheme(m_theme == Theme::Dark
+            ? OpenGLWidget::Theme::Dark
+            : OpenGLWidget::Theme::Light);
+    }
+
+    ui->actionDarkTheme->setChecked(t == Theme::Dark);
+    ui->actionLightTheme->setChecked(t == Theme::Light);
+}
+
+// Toggle between dark and light themes
+void RemeshApp::toggleTheme()
+{
+    setTheme(m_theme == Theme::Dark ? Theme::Light : Theme::Dark);
 }
 
 // Constructor
@@ -54,11 +122,45 @@ RemeshApp::RemeshApp(QWidget* parent)
     ui = new Ui::RemeshAppClass();
     ui->setupUi(this);
 
+
+    QTimer::singleShot(0, this, [this]() {
+        welcomeOverlay = new WelcomeOverlay(ui->centralWidget);
+        welcomeOverlay->setFixedSize(500, 500);
+
+        const int x = (ui->centralWidget->width() - welcomeOverlay->width()) / 2;
+        const int y = (ui->centralWidget->height() - welcomeOverlay->height()) / 2;
+
+        welcomeOverlay->move(x, y);
+        welcomeOverlay->raise();
+        welcomeOverlay->show();
+        });
+
+    //qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    ui->actionDarkTheme->setCheckable(true);
+    ui->actionLightTheme->setCheckable(true);
+
+    auto* themeGroup = new QActionGroup(this);
+    themeGroup->setExclusive(true);
+    themeGroup->addAction(ui->actionDarkTheme);
+    themeGroup->addAction(ui->actionLightTheme);
+
+    connect(ui->actionDarkTheme, &QAction::triggered, this, [this]() {
+        setTheme(Theme::Dark);
+        });
+    connect(ui->actionLightTheme, &QAction::triggered, this, [this]() {
+        setTheme(Theme::Light);
+        });
+
+    setTheme(Theme::Dark);
+
     m_baseBtnStyle[ui->btnDecimate] = ui->btnDecimate->styleSheet();
     m_baseBtnStyle[ui->btnSubdivide] = ui->btnSubdivide->styleSheet();
     m_baseBtnStyle[ui->btnIsotropic] = ui->btnIsotropic->styleSheet();
 
     oglWidget = ui->openGLWidget;
+
+    updateWireframeButtonUI();
 
     ui->pushButtonRemesh->setEnabled(false);
 
@@ -72,21 +174,17 @@ RemeshApp::RemeshApp(QWidget* parent)
         }
         });
 
-    connect(ui->showWireframeButton, &QPushButton::clicked, this, [=]() {
+    connect(ui->showWireframeButton, &QPushButton::clicked, this, [this]() {
+        if (!oglWidget) return;
+
         oglWidget->showWireframe = !oglWidget->showWireframe;
         oglWidget->update();
 
-        static bool toggled = false;
-        toggled = !toggled;
-
-        if (toggled)
-            ui->showWireframeButton->setStyleSheet("background-color: rgb(71,114,179); color: rgb(203, 203, 203);");
-        else
-            ui->showWireframeButton->setStyleSheet("background-color: rgb(84, 84, 84); color: rgb(203, 203, 203); ");
+        updateWireframeButtonUI();  // <-- тільки оновлення property + polish
         });
 
     connect(ui->pushButtonRemesh, &QPushButton::clicked, this, &RemeshApp::onRemeshButtonClicked);
-    
+
     connect(ui->btnDecimate, &QPushButton::clicked, this, [this]() {
         setSelectedAlgorithm(RemeshAlgo::Decimate);
         ui->stackedWidgeParameters->setCurrentIndex(2);
@@ -218,5 +316,29 @@ void RemeshApp::on_actionExport_obj_triggered()
     }
     else {
         qWarning() << "Помилка експорту.";
+    }
+}
+
+// Update wireframe button UI based on current state
+void RemeshApp::updateWireframeButtonUI()
+{
+    const bool on = (oglWidget && oglWidget->showWireframe);
+
+    ui->showWireframeButton->setProperty("toggled", on);
+
+    ui->showWireframeButton->style()->unpolish(ui->showWireframeButton);
+    ui->showWireframeButton->style()->polish(ui->showWireframeButton);
+    ui->showWireframeButton->update();
+}
+
+// Override resize event to keep welcome overlay centered
+void RemeshApp::resizeEvent(QResizeEvent* event)
+{
+    QMainWindow::resizeEvent(event);
+
+    if (welcomeOverlay && welcomeOverlay->isVisible()) {
+        const int x = (ui->centralWidget->width() - welcomeOverlay->width()) / 2;
+        const int y = (ui->centralWidget->height() - welcomeOverlay->height()) / 2;
+        welcomeOverlay->move(x, y);
     }
 }

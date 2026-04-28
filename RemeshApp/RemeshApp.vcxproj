@@ -127,12 +127,14 @@
     <ClCompile Include="MeshGL.cpp" />
     <ClCompile Include="CpuMeshBuffer.cpp" />
     <ClCompile Include="SubdivideStrategy.cpp" />
+    <ClCompile Include="WelcomeOverlay.cpp" />
     <QtRcc Include="RemeshApp.qrc" />
     <QtUic Include="RemeshApp.ui" />
     <QtMoc Include="RemeshApp.h" />
     <ClCompile Include="OpenGLWidget.cpp" />
     <ClCompile Include="RemeshApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="WelcomeOverlay.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="OpenGLWidget.h" />
@@ -142,11 +144,18 @@
     <ClInclude Include="DecimateStrategy.h" />
     <ClInclude Include="IRemeshStrategy.h" />
     <ClInclude Include="IsotropicRemeshStrategy.h" />
+    <QtMoc Include="WelcomeOverlay.h" />
     <QtMoc Include="LogManager.h" />
     <ClInclude Include="MeshGL.h" />
     <ClInclude Include="CpuMeshBuffer.h" />
     <ClInclude Include="RemeshParams.h" />
     <ClInclude Include="SubdivideStrategy.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\themes\dark\checkbox.qss" />
+    <None Include="resources\themes\dark\widgets.qss" />
+    <None Include="resources\themes\light\checkbox.qss" />
+    <None Include="resources\themes\light\widgets.qss" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

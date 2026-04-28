@@ -21,6 +21,15 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Themes">
+      <UniqueIdentifier>{ac3d3f49-150f-4d98-b3fc-d19af67ce421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Themes\Dark">
+      <UniqueIdentifier>{845a6721-2eae-4b9b-8117-12f197d1a206}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Themes\Light">
+      <UniqueIdentifier>{c6f3c99e-3f04-4507-b070-dd1192e035fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="RemeshApp.qrc">
@@ -64,12 +73,18 @@
     <ClCompile Include="LogManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WelcomeOverlay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="OpenGLWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LogManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="WelcomeOverlay.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -98,5 +113,24 @@
     <ClInclude Include="SubdivideStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\themes\dark\widgets.qss">
+      <Filter>Themes\Dark</Filter>
+    </None>
+    <None Include="resources\themes\dark\checkbox.qss">
+      <Filter>Themes\Dark</Filter>
+    </None>
+    <None Include="resources\themes\light\checkbox.qss">
+      <Filter>Themes\Light</Filter>
+    </None>
+    <None Include="resources\themes\light\widgets.qss">
+      <Filter>Themes\Light</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="WelcomeOverlay.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>

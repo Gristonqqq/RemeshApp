@@ -5,6 +5,7 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include <QColor>
 
 #include "CoreMesh.h"
 #include "CpuMeshBuffer.h"
@@ -29,6 +30,9 @@ public:
 
     bool showWireframe = false;
 
+    enum class Theme { Dark, Light };
+
+    void setTheme(Theme t);
 protected:
     void initializeGL() override;
     void paintGL() override;
@@ -54,4 +58,6 @@ private:
     float rotationX = 0.0f, rotationY = 0.0f;
     QMatrix4x4 projection;
     QPoint lastMousePos;
+
+    QColor m_clearColor = QColor(63, 63, 63);
 };

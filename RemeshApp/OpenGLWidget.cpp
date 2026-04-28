@@ -23,6 +23,17 @@ OpenGLWidget::~OpenGLWidget()
     }
 }
 
+// Set the theme (dark or light)
+void OpenGLWidget::setTheme(Theme t)
+{
+    if (t == Theme::Dark)
+        m_clearColor = QColor(63, 63, 63);    // dark background
+    else
+        m_clearColor = QColor(179, 179, 179); // light background
+
+    update();
+}
+
 // Initialize OpenGL
 void OpenGLWidget::initializeGL()
 {
@@ -96,7 +107,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 // Paint OpenGL scene
 void OpenGLWidget::paintGL()
 {
-    glClearColor(0.247f, 0.247f, 0.247f, 1.0f);
+    glClearColor(m_clearColor.redF(), m_clearColor.greenF(), m_clearColor.blueF(), 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!shader.isLinked() || m_meshGL.isEmpty())

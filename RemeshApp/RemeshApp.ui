@@ -263,6 +263,11 @@ QFrame * {color: rgb(230, 230, 230);}</string>
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="styleSheet">
+                  <string notr="true">QDoubleSpinBox{
+background: #2D2D2D;
+}</string>
+                 </property>
                  <property name="value">
                   <double>0.100000000000000</double>
                  </property>
@@ -1246,7 +1251,21 @@ image: none;
     <addaction name="menuImport"/>
     <addaction name="menuExport"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionDarkTheme"/>
+     <addaction name="actionLightTheme"/>
+    </widget>
+    <addaction name="menuTheme"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionGuide">
@@ -1267,6 +1286,16 @@ image: none;
   <action name="actionImport_obj">
    <property name="text">
     <string>.obj</string>
+   </property>
+  </action>
+  <action name="actionDarkTheme">
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionLightTheme">
+   <property name="text">
+    <string>Light</string>
    </property>
   </action>
  </widget>

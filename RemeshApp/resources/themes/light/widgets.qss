@@ -1,0 +1,139 @@
+/* Global text color */
+QWidget {
+    color: #1B1B1B;
+}
+
+/* base */
+QMainWindow {
+    background-color: rgb(153, 153, 153);
+}
+
+/* common rounded frames */
+QFrame#ViewPort,
+QFrame#MenuTab,
+QFrame#gridFrame_2,
+QFrame#gridFrame,
+QFrame#gridFrame_3 {
+    border-radius: 6px;
+}
+
+/* Viewport container */
+QFrame#ViewPort {
+    background-color: #B3B3B3;
+    border: 3px solid #B3B3B3;
+}
+
+/* Right pannel */
+QFrame#MenuTab {
+    background-color: #B3B3B3;
+}
+
+/* Blocks inside manuTab */
+QFrame#gridFrame_2,
+QFrame#gridFrame,
+QFrame#gridFrame_3 {
+    border: 1px solid #D3D3D3;
+    background-color: rgb(204, 204, 204);
+}
+
+/* Algorithm choose buttons */
+QPushButton#btnIsotropic,
+QPushButton#btnSubdivide,
+QPushButton#btnDecimate {
+    border: 1px solid #4D4D4D;
+    background-color: #DBDBDB;
+}
+
+/* selected state */
+QPushButton#btnIsotropic[selected="true"],
+QPushButton#btnSubdivide[selected="true"],
+QPushButton#btnDecimate[selected="true"] {
+    background-color: rgb(71,114,179);
+    color: white;
+}
+
+/* Buttons geometry */
+QPushButton#btnIsotropic {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+QPushButton#btnSubdivide {
+    border-radius: 0px;
+}
+
+QPushButton#btnDecimate {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+/* Remesh button */
+QPushButton#pushButtonRemesh,
+QPushButton#showWireframeButton {
+    background-color: #DBDBDB;
+    border: 1px solid #4D4D4D;
+    border-radius: 6px;
+    min-height: 30px;
+}
+
+QDoubleSpinBox{
+background: #D4D4D4;
+}
+
+QPushButton#showWireframeButton[toggled="true"] {
+    background-color: #4772B3;
+    color: #CBCBCB;
+}
+
+QPushButton#showWireframeButton[toggled="false"] {
+    background-color: #DBDBDB;
+}
+
+
+/* Верхня панель меню */
+QMenuBar {
+    background-color: #999999;   /* фон menu bar */
+}
+
+/* Пункти меню (File/Edit/...) */
+QMenuBar::item {
+
+}
+
+/* Наведення мишкою */
+QMenuBar::item:selected {
+    background-color: #909090;
+}
+
+/* Натиснуто */
+QMenuBar::item:pressed {
+    background-color: rgb(100, 100, 100);
+    border-radius: 6px;           /* закруглення кутів */
+}
+
+/* Випадаючий список */
+QMenu {
+    background-color: #C0C0C0;
+
+    border-radius: 6px;
+
+    border: none;          /* прибираємо стандартну рамку */
+    outline: 0;
+}
+
+QMenu::item {
+    padding: 6px 16px;
+    border-radius: 6px;
+    margin: 2px 6px;
+}
+
+/* Наведення на пункт у випадаючому меню */
+QMenu::item:selected {
+    background-color: rgb(85, 85, 85);
+    border: 1px solid #4D4D4D;    /* рамка навколо menu bar */
+    border-radius: 6px;           /* закруглення кутів */
+}

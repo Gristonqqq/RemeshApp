@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/icons">
-		<file alias="check.png">resources/icons/check.png</file>
+        <file alias="check.png">resources/icons/check.png</file>
+        <file>resources/icons/document_darkTheme.png</file>
+        <file>resources/icons/document_lightTheme.png</file>
+    </qresource>
+    <qresource prefix="/themes">
+        <file alias="dark/widgets.qss">resources/themes/dark/widgets.qss</file>
+        <file alias="dark/checkbox.qss">resources/themes/dark/checkbox.qss</file>
+        <file alias="light/checkbox.qss">resources/themes/light/checkbox.qss</file>
+        <file alias="light/widgets.qss">resources/themes/light/widgets.qss</file>
+    </qresource>
+    <qresource prefix="/pictures">
+        <file>resources/icons/SplashScreen.png</file>
     </qresource>
 </RCC>

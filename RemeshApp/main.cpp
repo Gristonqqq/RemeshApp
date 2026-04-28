@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
     LogManager::instance().init();
     qInfo() << "App started. Log file:" << LogManager::instance().logFilePath();
-    
+
     RemeshApp window;
     window.setWindowState(Qt::WindowMaximized);
     window.show();
